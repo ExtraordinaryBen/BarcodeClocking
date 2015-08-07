@@ -1,0 +1,11 @@
+1) Since student time sheets are turned in before the end of the month, the app should make a guess on what the tutor's time will be on the days that haven't yet occurred.
+Idea: Take the average of the clocked hours on the same day of the week from a set number of past weeks.
+
+2) Make the application useful when it's not in use
+Idea: After a period of inactivity, show the current date and time.
+
+3) When student employees clock out, and the total time they logged is above a certain threshold, show a warning regarding the larger amount of time and where they can go to fix the issue, if nessesary.
+Note: there's an option in the "Manage Time" menu to "Edit past time"
+Note: since most clock-in's/-out's are done without a mouse and keyboard, the notification needs to automatically close after a few seconds
+Idea: utilize the INI settings file to specify the threshold.
+Idea: come up with some kind of algorithm that will use past-logged times to guess the threshold where the warning should appear.
