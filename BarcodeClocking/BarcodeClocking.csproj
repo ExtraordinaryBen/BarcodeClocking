@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- -->
+    <Compile Include="Helper.cs" />
     <Compile Include="HelperClass.cs" />
     <Compile Include="FormAboutBox.cs">
       <SubType>Form</SubType>

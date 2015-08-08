@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Data;
 
 namespace BarcodeClocking
 {
@@ -30,6 +31,8 @@ namespace BarcodeClocking
     {
         // vars
         private char[] invalidChars;
+        private SQLiteDatabase sql = new SQLiteDatabase();
+        private DataTable dt;
 
         public FormAddTime()
         {
@@ -47,49 +50,33 @@ namespace BarcodeClocking
         {
             try
             {
-                // vars
-                bool found = false;
-                string[] currentFile;
-
                 // check for user or scanner 'pressing' enter
                 if (e.KeyData.ToString().Equals("Return"))
                 {
-                    // load cards
-                    currentFile = File.ReadAllLines("cardList.txt");
-
                     // don't let the textbox handle it further
                     e.SuppressKeyPress = true;
 
                     // don't allow changing the card id
-                    TextBoxID.ReadOnly = true;
-
-                    // find respective card
-                    for (int i = 0; i < currentFile.Length; i++)
-                    {
-                        // check if this is the card we're looking for
-                        if (currentFile[i].Split(new char[] { '\t' })[0].Equals(TextBoxID.Text.Trim()))
-                            // make note
-                            found = true;
-                    }
+                    TextBoxCardID.ReadOnly = true;
 
                     // notify user if card wasn't found
-                    if (!found)
+                    if ( !(Helper.EmployeeExists(TextBoxCardID.Text, sql)) )
                     {
                         MessageBox.Show(this, "The card you entered wasn't found. Are you sure you typed it in correctly?", "Card Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                         // enable editing of card id
-                        TextBoxID.ReadOnly = false;
-                        TextBoxID.Focus();
-                        TextBoxID.SelectAll();
+                        TextBoxCardID.ReadOnly = false;
+                        TextBoxCardID.Focus();
+                        TextBoxCardID.SelectAll();
                     }
-                    else
+                    else 
                         // move on to next control
                         DateTimePickerIn.Focus();
                 }
             }
             catch (Exception err)
             {
-                TextBoxID.ReadOnly = false;
+                TextBoxCardID.ReadOnly = false;
                 MessageBox.Show(this, "There was an error while trying to make sure the card was recognized.\n\n" + err.Message, "Load Card List Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -102,50 +89,29 @@ namespace BarcodeClocking
 
         private void ButtonAdd_Click(object sender, EventArgs e)
         {
-            // vars
-            string[] oldFile;
-            List<string> newFile = new List<string>();
 
             // check for card id being validated
-            if (!TextBoxID.ReadOnly)
+            if (!TextBoxCardID.ReadOnly)
             {
                 // validate card
                 try
                 {
                     // vars
                     bool found = false;
-                    string[] currentFile = File.ReadAllLines("cardList.txt");
-
-                    // load cards
-                    currentFile = File.ReadAllLines("cardList.txt");
 
                     // don't allow changing the card id
-                    TextBoxID.ReadOnly = true;
-
-                    // find respective card
-                    for (int i = 0; i < currentFile.Length; i++)
-                    {
-                        // check if this is the card we're looking for
-                        if (currentFile[i].Split(new char[] { '\t' })[0].Equals(TextBoxID.Text.Trim()))
-                        {
-                            // make note
-                            found = true;
-
-                            // stop looking for card
-                            break;
-                        }
-                    }
+                    TextBoxCardID.ReadOnly = true;
 
                     // confirm card was found
-                    if (!found)
+                    if ( !(Helper.EmployeeExists(TextBoxCardID.Text, sql)) )
                     {
                         // display notification
                         MessageBox.Show(this, "The card you entered wasn't found. Are you sure you typed it in correctly?", "Card Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                         // enable editing of card id
-                        TextBoxID.ReadOnly = false;
-                        TextBoxID.Focus();
-                        TextBoxID.SelectAll();
+                        TextBoxCardID.ReadOnly = false;
+                        TextBoxCardID.Focus();
+                        TextBoxCardID.SelectAll();
 
                         // prevent further processing
                         return;
@@ -154,7 +120,7 @@ namespace BarcodeClocking
                 catch (Exception err)
                 {
                     // enable editing of card id
-                    TextBoxID.ReadOnly = false;
+                    TextBoxCardID.ReadOnly = false;
 
                     // display error
                     MessageBox.Show(this, "There was an error while trying to make sure the card was recognized.\n\n" + err.Message, "Load Card List Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -166,32 +132,13 @@ namespace BarcodeClocking
 
             try
             {
-                // get current time log
-                oldFile = File.ReadAllLines(TextBoxID.Text.Trim() + ".txt");
+                Dictionary<String, String> data = new Dictionary<String, String>();
+                data.Add("employeeID", TextBoxCardID.Text.Trim());
+                data.Add("clockIn", DateTimePickerIn.Value.ToString(StringFormats.sqlTimeFormat));
+                data.Add("clockOut", DateTimePickerOut.Value.ToString(StringFormats.sqlTimeFormat));
 
-                // go through each line of file
-                foreach (string line in oldFile)
-                {
-                    // make sure this line has two values (don't interfere with current clock-in)
-                    if (line.Split(new char[] { '\t' })[1].Length > 0)
-                        // add line to new file
-                        newFile.Add(line + "\r\n");
-                }
-
-                // add new clock-in/-out entry
-                newFile.Add(DateTimePickerIn.Value.ToBinary().ToString() + "\t" + DateTimePickerOut.Value.ToBinary().ToString() + "\r\n");
-
-                // check for last line having one value (current clock-in)
-                if (oldFile[oldFile.Length - 1].Split(new char[] { '\t' })[1].Length == 0)
-                    // add line to new file
-                    newFile.Add(oldFile[oldFile.Length - 1]);
-
-                // write new file to disk
-                // note: we can't use File.WriteAllLines() because it adds an extra \r\n to the end of the file (this is bad)
-                File.Delete(TextBoxID.Text.Trim() + ".txt");
-                for (int i = 0; i < newFile.Count; i++)
-                    // write line
-                    File.AppendAllText(TextBoxID.Text.Trim() + ".txt", newFile[i]);
+                sql.Insert("timeStamps", data);
+            
             }
             catch (Exception err)
             {

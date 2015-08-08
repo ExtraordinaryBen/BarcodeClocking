@@ -24,7 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Data;
-using System.Collections.Generic;
 
 namespace BarcodeClocking
 {
@@ -32,9 +31,6 @@ namespace BarcodeClocking
     {
         // vars
         private char[] invalidChars;
-        private string originalDateTimeStr;
-        private List<int> positionMapper;
-        private List<TimeCombo> timeList;
         private SQLiteDatabase sql = new SQLiteDatabase();
         private DataTable dt;
 
@@ -57,8 +53,7 @@ namespace BarcodeClocking
         {
             // vars
             bool found = false;
-            timeList = new List<TimeCombo>();
-            positionMapper = new List<int>();
+
 
             // change gui
             ButtonLoad.Text = "Loading Times...";
@@ -73,7 +68,7 @@ namespace BarcodeClocking
             DateTime monthEnd = monthStart.AddMonths(1);
 
 
-            dt = sql.GetDataTable("select strftime('%m/%d/%Y %H:%M:%S', clockIn) as clockIn, strftime('%m/%d/%Y %H:%M:%S', clockOut) as clockOut "
+            dt = sql.GetDataTable("select strftime('%m/%d/%Y %H:%M:%S', clockIn) as clockIn, strftime('%m/%d/%Y %H:%M:%S', clockOut) as clockOut, id "
                 + "from timeStamps where employeeID=" + TextBoxCardID.Text.Trim()
                 + " and cast(strftime('%m', clockIn) as integer) = " + (int)(ComboBoxMonth.SelectedIndex + 1)
                 + " and cast(strftime('%Y', clockIn) as integer) = " + (int)NumericUpDownYear.Value + ";");
@@ -88,8 +83,22 @@ namespace BarcodeClocking
                 {
 
                     DataGridViewTimes.DataSource = dt;
+
+                    foreach (DataGridViewRow entry in this.DataGridViewTimes.Rows)
+                    {
+                        entry.Cells[0].Value = DateTime.Parse(entry.Cells[0].Value.ToString()).ToString(StringFormats.timeStampFormat);
+                        entry.Cells[1].Value = DateTime.Parse(entry.Cells[1].Value.ToString()).ToString(StringFormats.timeStampFormat);
+
+                    }
+
                     this.DataGridViewTimes.ClearSelection();
+                    
+                    //Hide id column, used to determine which entry to update/remove 
+                    this.DataGridViewTimes.Columns[2].Visible = false;
+
                     this.DataGridViewTimes.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
+                    
+                    //Enable fields to edit entries
                     clockInTimePicker.Enabled = true;
                     clockOutTimePicker.Enabled = true;
                     datePicker.Enabled = true;
@@ -153,38 +162,6 @@ namespace BarcodeClocking
             ButtonSave.Enabled = true;
         }
 
-        private void DataGridViewTimes_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            // record original string
-            originalDateTimeStr = DataGridViewTimes.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
-
-            // enable saving
-            ButtonSave.Enabled = true;
-        }
-
-        private void DataGridViewTimes_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            // check to make sure value is in a correct fomat
-            try
-            {
-                // check for which value was changed 
-                if (e.ColumnIndex == 0)
-                    // save new clocked in time
-                    timeList[positionMapper[e.RowIndex]].clockedIn = DateTime.Parse(DataGridViewTimes.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString());
-                else if (e.ColumnIndex == 1)
-                    // save new clocked out time
-                    timeList[positionMapper[e.RowIndex]].clockedOut = DateTime.Parse(DataGridViewTimes.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString());
-            }
-            catch (Exception err)
-            {
-                // show error to user
-                MessageBox.Show(this, "There was an error while checking the value you entered for the date and time. Please make sure it is in the correct format, and that it's a valid date and time.\n\nMore details:\n" + err.Message, "Incorrect Date/Time", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // change value back to original
-                DataGridViewTimes.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = originalDateTimeStr;
-            }
-        }
-
         private void DataGridViewTimes_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
             // remove respective row from list of clocked times
@@ -226,25 +203,20 @@ namespace BarcodeClocking
         private void ButtonSave_Click(object sender, EventArgs e)
         {
             // vars
-            List<string> newFile = new List<string>();
-            string[] oldFile;
+            int timeStampId = int.Parse(DataGridViewTimes.SelectedRows[0].Cells[2].Value.ToString());
 
             try
             {
-                // go through each time combo
-                foreach (TimeCombo time in timeList)
-                {
-                    // add time to list of strings to write as the new file
-                    newFile.Add(time.clockedIn.ToBinary().ToString() + "\t" + time.clockedOut.ToBinary().ToString());
-                }
+                Dictionary<String, String> data = new Dictionary<String, String>();
+                data.Add("clockIn", clockInTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
+                data.Add("clockOut", clockOutTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
 
-                // add last line of old file if there's only one binary time value (aka. their currently clocked in)
-                oldFile = File.ReadAllLines(TextBoxCardID.Text.Trim() + ".txt");
-                if (oldFile[oldFile.Length - 1].Split(new char[] { '\t' })[1].Length == 1)
-                    newFile.Add(oldFile[oldFile.Length - 1]);
+                sql.Update("timeStamps", data, String.Format("timeStamps.id = {0}", timeStampId));
 
-                // write changes to disk
-                File.WriteAllLines(TextBoxCardID.Text.Trim() + ".txt", newFile);
+                DataGridViewTimes.SelectedRows[0].Cells[0].Value = clockInTimePicker.Value.ToString(StringFormats.timeStampFormat);
+                DataGridViewTimes.SelectedRows[0].Cells[1].Value = clockOutTimePicker.Value.ToString(StringFormats.timeStampFormat);
+                
+                this.DataGridViewTimes.ClearSelection();
 
                 // disable duplicate saving
                 ButtonSave.Enabled = false;
@@ -272,21 +244,4 @@ namespace BarcodeClocking
         }
     }
 
-    class TimeCombo
-    {
-        public DateTime clockedIn { get; set; }
-        public DateTime clockedOut { get; set; }
-
-        public TimeCombo()
-        {
-            clockedIn = new DateTime();
-            clockedOut = new DateTime();
-        }
-
-        public TimeCombo(DateTime timeIn, DateTime timeOut)
-        {
-            clockedIn = timeIn;
-            clockedOut = timeOut;
-        }
-    }
 }

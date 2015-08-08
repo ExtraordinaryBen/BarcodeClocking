@@ -119,20 +119,23 @@ namespace BarcodeClocking
             // DataGridViewTimes
             // 
             this.DataGridViewTimes.AllowUserToAddRows = false;
+            this.DataGridViewTimes.AllowUserToResizeColumns = false;
+            this.DataGridViewTimes.AllowUserToResizeRows = false;
             this.DataGridViewTimes.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.DataGridViewTimes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DataGridViewTimes.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.DataGridViewTimes.Location = new System.Drawing.Point(9, 134);
             this.DataGridViewTimes.Margin = new System.Windows.Forms.Padding(2);
+            this.DataGridViewTimes.MultiSelect = false;
             this.DataGridViewTimes.Name = "DataGridViewTimes";
             this.DataGridViewTimes.ReadOnly = true;
             this.DataGridViewTimes.RowHeadersVisible = false;
+            this.DataGridViewTimes.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
             this.DataGridViewTimes.RowTemplate.Height = 24;
             this.DataGridViewTimes.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.DataGridViewTimes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.DataGridViewTimes.Size = new System.Drawing.Size(406, 155);
             this.DataGridViewTimes.TabIndex = 5;
-            this.DataGridViewTimes.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.DataGridViewTimes_CellBeginEdit);
-            this.DataGridViewTimes.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewTimes_CellEndEdit);
             this.DataGridViewTimes.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.DataGridViewTimes_RowsRemoved);
             // 
             // ColumnClockIn

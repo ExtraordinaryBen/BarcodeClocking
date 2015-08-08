@@ -55,7 +55,7 @@ namespace BarcodeClocking
             this.LabelOut = new System.Windows.Forms.Label();
             this.DateTimePickerOut = new System.Windows.Forms.DateTimePicker();
             this.ButtonAdd = new System.Windows.Forms.Button();
-            this.TextBoxID = new System.Windows.Forms.TextBox();
+            this.TextBoxCardID = new System.Windows.Forms.TextBox();
             this.LabelID = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -129,14 +129,14 @@ namespace BarcodeClocking
             // 
             // TextBoxID
             // 
-            this.TextBoxID.AcceptsReturn = true;
-            this.TextBoxID.Location = new System.Drawing.Point(95, 43);
-            this.TextBoxID.Margin = new System.Windows.Forms.Padding(2);
-            this.TextBoxID.Name = "TextBoxID";
-            this.TextBoxID.Size = new System.Drawing.Size(270, 20);
-            this.TextBoxID.TabIndex = 1;
-            this.TextBoxID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxID_KeyDown);
-            this.TextBoxID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(HelperClass.OnKeyPress);
+            this.TextBoxCardID.AcceptsReturn = true;
+            this.TextBoxCardID.Location = new System.Drawing.Point(95, 43);
+            this.TextBoxCardID.Margin = new System.Windows.Forms.Padding(2);
+            this.TextBoxCardID.Name = "TextBoxID";
+            this.TextBoxCardID.Size = new System.Drawing.Size(270, 20);
+            this.TextBoxCardID.TabIndex = 1;
+            this.TextBoxCardID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxID_KeyDown);
+            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(HelperClass.OnKeyPress);
             // 
             // LabelID
             // 
@@ -154,7 +154,7 @@ namespace BarcodeClocking
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(369, 169);
             this.Controls.Add(this.LabelID);
-            this.Controls.Add(this.TextBoxID);
+            this.Controls.Add(this.TextBoxCardID);
             this.Controls.Add(this.ButtonAdd);
             this.Controls.Add(this.LabelOut);
             this.Controls.Add(this.DateTimePickerOut);
@@ -182,7 +182,7 @@ namespace BarcodeClocking
         private System.Windows.Forms.Label LabelOut;
         private System.Windows.Forms.DateTimePicker DateTimePickerOut;
         private System.Windows.Forms.Button ButtonAdd;
-        private System.Windows.Forms.TextBox TextBoxID;
+        private System.Windows.Forms.TextBox TextBoxCardID;
         private System.Windows.Forms.Label LabelID;
     }
 }
