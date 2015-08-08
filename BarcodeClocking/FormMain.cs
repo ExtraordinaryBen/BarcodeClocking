@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using System.Data;
 
 namespace BarcodeClocking
 {
@@ -41,14 +42,10 @@ namespace BarcodeClocking
         #region Declarations
 
         // vars
-        private bool closing = false;
-        private bool opening = true;
-        private bool selfChanged = false;
         private char[] invalidChars;
-        private INIFile settingsFile;
-        private List<Card> cardList;
-        private Process morseCodeListener;
         private string input;
+        private SQLiteDatabase sql = new SQLiteDatabase();
+        DataTable dt;
 
         #endregion
 
@@ -102,59 +99,12 @@ namespace BarcodeClocking
             //System.Windows.Forms.Timer clockTimer = new System.Windows.Forms.Timer();
 
 
-            // load list of cards
-            LoadCards();
-
-
-            // prepare settings
-            settingsFile = new INIFile("BarcodeClocking.ini", false, true);
-
-        }
-
-        private void LoadCards()
-        {
-            try
-            {
-                // create vars
-                cardList = new List<Card>();
-                if (!File.Exists("cardList.txt"))
-                    File.AppendAllText("cardList.txt", "");
-                string[] tempList = File.ReadAllLines("cardList.txt");
-
-                // go through each line from file
-                foreach (string card in tempList)
-                {
-                    // vars
-                    bool isClocked;
-
-                    // split line into parts
-                    string[] cardParts = card.Split(new char[] { '\t' });
-
-                    // see if this card hasn't clocked out
-                    if (File.Exists(cardParts[0] + ".txt"))
-                    {
-                        string[] records = File.ReadAllLines(cardParts[0] + ".txt");
-                        if (records[records.Length - 1].EndsWith("\t"))
-                            isClocked = true;
-                        else
-                            isClocked = false;
-                    }
-                    else
-                        isClocked = false;
-
-                    // add card to list
-                    cardList.Add(new Card(cardParts[0], cardParts[1], isClocked));
-                }
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show(this, "There was an error while loading the list of cards.\n\n" + err.Message, "Card Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            // check for empty card list
-            if (cardList.Count == 0)
+            if( sql.GetDataTable("select employeeID from employees;").Rows.Count == 0 )
                 MessageBox.Show(this, "It looks like there aren't any registered cards yet. You can add a card by pressing Alt + N on the keyboard, or by clicking on the 'Add new card' option from the 'Manage Cards' menu.", "No Registered Cards", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+
         }
+
 
         private void FormMain_Deactivate(object sender, EventArgs e)
         {
@@ -232,9 +182,8 @@ namespace BarcodeClocking
         private void FormMain_KeyPress(object sender, KeyPressEventArgs e)
         {
             // vars
-            bool inList = false;
-            DateTime clockedIn;
-            DateTime clockedOut;
+            int timeStampId;
+            string firstName;
 
             // check for user/scanner pressing enter
             if (e.KeyChar.Equals('\r') || e.KeyChar.Equals('\n'))
@@ -243,84 +192,84 @@ namespace BarcodeClocking
                 input = input.Trim();
 
                 // check for existence of card
-                for (int i = 0; i < cardList.Count; i++)
+                if (Helper.EmployeeExists(input, sql))
                 {
-                    if (cardList[i].cardID == input)
+                    dt= sql.GetDataTable("select * from employees where employeeID=" + input + ";");
+                    timeStampId = int.Parse(dt.Rows[0].ItemArray[6].ToString());
+                    firstName = dt.Rows[0].ItemArray[1].ToString();
+
+                    // check for clock-in or -out
+                    if ( timeStampId > 0 )
                     {
-                        // flag it
-                        inList = true;
-
-                        // check for clock-in or -out
-                        if (cardList[i].clockedIn)
+                        try
                         {
-                            try
-                            {
-                                // clock out
-                                cardList[i].clockedIn = false;
-                                File.AppendAllText(input + ".txt", DateTime.Now.ToString() + "\r\n");
-                            }
-                            catch (Exception err)
-                            {
-                                MessageBox.Show(this, "There was an error while trying to clock you out.\n\n" + err.Message, "Clock Out Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
+                            
 
-                            // calculate time logged
-                            TimeSpan diff = new TimeSpan(0, 0, 0, 0);
-                            try
-                            {
-                                string[] records = File.ReadAllLines(input + ".txt");
-                                string[] temp = records[records.Length - 1].Split(new char[] { '\t' });
-                                clockedIn = DateTime.Parse(temp[0]);
-                                clockedOut = DateTime.Parse(temp[1]);
-                                diff = clockedOut - clockedIn;
-                            }
-                            catch (Exception err)
-                            {
-                                MessageBox.Show(this, "There was an error while trying to calculate the time you clocked.\nWas someone playing with the database files?\n\n" + err.Message, "Clocked Time Calculation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
+                            // clock out
+                            Dictionary<String, String> data = new Dictionary<String, String>();
+                            data.Add("clockOut", DateTime.Now.ToString(StringFormats.sqlTimeFormat));
 
-                            // show confirmation
-                            LabelStatus.Text = "Goodbye " + cardList[i].fName + ".\nYou logged " + GenerateClockedTime(diff) + ".";
-                            TimerInputTimeout.Interval = 3000;
-                            TimerInputTimeout.Enabled = true;
+                            sql.Update("timeStamps", data, String.Format("timeStamps.id = {0}", timeStampId));
+
+
+                            sql.ExecuteNonQuery("update employees set currentClockInId = 0 where employeeId="+input+";");
+                            
                         }
-                        else
+                        catch (Exception err)
                         {
-                            // clock in
-                            cardList[i].clockedIn = true;
-                            try
-                            {
-                                File.AppendAllText(input + ".txt", DateTime.Now.ToString() + "\t");
-                            }
-                            catch (Exception err)
-                            {
-                                MessageBox.Show(this, "There was an error while trying to clock you in.\n\n" + err.Message, "Clock In Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-
-                            // show confirmation
-                            LabelStatus.Text = "Hello " + cardList[i].fName + "!\nYou're now clocked in.";
-                            TimerInputTimeout.Interval = 2500;
-                            TimerInputTimeout.Enabled = true;
+                            MessageBox.Show(this, "There was an error while trying to clock you out.\n\n" + err.Message, "Clock Out Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
 
-                        // stop processing the list
-                        break;
+                        // calculate time logged
+                        dt = sql.GetDataTable("select strftime('%s', clockOut) - strftime('%s', clockIn) from timeStamps where id="+timeStampId+";");
+                        TimeSpan diff = TimeSpan.FromSeconds(long.Parse(dt.Rows[0].ItemArray[0].ToString()));
+
+                        // show confirmation
+                        LabelStatus.Text = "Goodbye " + firstName + ".\nYou logged " + GenerateClockedTime(diff) + ".";
+                        TimerInputTimeout.Interval = 3000;
+                        TimerInputTimeout.Enabled = true;
                     }
-                    
-
-                    // check for unrecognized card
-                    if (!inList)
+                    else
                     {
-                        // notify user of unrecognized card
-                        LabelStatus.Text = "Unrecognized card!";
+                        // clock in
+                        try
+                        {
+                            Dictionary<String, String> data = new Dictionary<String, String>();
+                            data.Add("employeeID", input);
+                            data.Add("clockIn", DateTime.Now.ToString(StringFormats.sqlTimeFormat));
+
+
+                            sql.Insert("timeStamps", data);
+                            dt = sql.GetDataTable("select seq from sqlite_sequence where name='timeStamps';");
+                            
+                            data.Clear();
+                            data.Add("currentClockInId", dt.Rows[0].ItemArray[0].ToString());
+                            
+                            sql.Update("employees", data, String.Format("employees.employeeId = {0}", input));
+                        }
+                        catch (Exception err)
+                        {
+                            MessageBox.Show(this, "There was an error while trying to clock you in.\n\n" + err.Message, "Clock In Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+
+                        // show confirmation
+                        LabelStatus.Text = "Hello " + firstName + "!\nYou're now clocked in.";
                         TimerInputTimeout.Interval = 2500;
                         TimerInputTimeout.Enabled = true;
                     }
 
-                    // reset input storage
-                    LabelInput.Text = "input: ";
-                    input = "";
                 }
+                else
+                {
+                    // notify user of unrecognized card
+                    LabelStatus.Text = "Unrecognized card!";
+                    TimerInputTimeout.Interval = 2500;
+                    TimerInputTimeout.Enabled = true;
+                }
+
+                // reset input storage
+                LabelInput.Text = "input: ";
+                input = "";
             }
             else
                 // add the input
@@ -467,9 +416,6 @@ namespace BarcodeClocking
             FormAddCard addCardForm = new FormAddCard();
             addCardForm.ShowDialog();
 
-            // reload list of cards
-            LoadCards();
-
             // reset status
             ResetStatus();
         }
@@ -483,9 +429,6 @@ namespace BarcodeClocking
             FormEditCard editCardForm = new FormEditCard();
             editCardForm.ShowDialog();
 
-            // reload list of cards
-            LoadCards();
-
             // reset status
             ResetStatus();
         }
@@ -498,9 +441,6 @@ namespace BarcodeClocking
             // show form
             FormRemoveCard removeCardForm = new FormRemoveCard();
             removeCardForm.ShowDialog();
-
-            // reload list of cards
-            LoadCards();
 
             // reset status
             ResetStatus();
@@ -570,17 +510,4 @@ namespace BarcodeClocking
         //http://stackoverflow.com/questions/11952075/timer-refresh-functionality-for-text-box
     }
 
-    class Card
-    {
-        public string cardID { set; get; }
-        public string fName { set; get; }
-        public bool clockedIn { set; get; }
-
-        public Card(string id, string firstName, bool isClockedIn)
-        {
-            this.cardID = id;
-            this.fName = firstName;
-            this.clockedIn = isClockedIn;
-        }
-    }
 }

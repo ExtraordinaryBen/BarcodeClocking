@@ -32,7 +32,6 @@ namespace BarcodeClocking
         // vars
         private char[] invalidChars;
         private SQLiteDatabase sql = new SQLiteDatabase();
-        private DataTable dt;
 
         public FormAddTime()
         {
@@ -96,9 +95,6 @@ namespace BarcodeClocking
                 // validate card
                 try
                 {
-                    // vars
-                    bool found = false;
-
                     // don't allow changing the card id
                     TextBoxCardID.ReadOnly = true;
 
