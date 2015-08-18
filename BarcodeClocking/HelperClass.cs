@@ -17,18 +17,14 @@ namespace BarcodeClocking
         static private bool IsNumberKey(char key)
         {
             //Allow 0-9 in Card ID TextBoxes
-            if (key < 48 || key > 57)
-            {
-                    return false;
-            }
-            return true;
+            return key >= '0' && key <= '9';
         
         }
 
         static private bool IsActionKey(char key)
         {
             //Allow DEL and BS keys in Card ID TextBoxes
-            return (key == 127 || key == 8);
+            return key == '\u007f' || key == '\b';
         }
     }
 }
