@@ -84,6 +84,7 @@ namespace BarcodeClocking
         {
             DateTimePickerOut.MinDate = DateTimePickerIn.Value;
             DateTimePickerOut.Value = DateTimePickerIn.Value;
+            DateTimePickerOut.MaxDate = DateTimePickerIn.Value.Date.AddHours(23.00);
         }
 
         private void ButtonAdd_Click(object sender, EventArgs e)

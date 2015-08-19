@@ -223,5 +223,12 @@ class SQLiteDatabase
             return false;
         }
     }
+
+    public void SetDB()
+    {
+
+
+
+    }
 }
 
