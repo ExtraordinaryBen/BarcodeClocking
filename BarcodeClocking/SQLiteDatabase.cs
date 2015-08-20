@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -7,13 +8,33 @@ using System.Windows.Forms;
 class SQLiteDatabase
 {
     String dbConnection;
+    static String fileName = "barcode.sqlite";
+
+    static String avgHoursTable = "CREATE TABLE `avgHours` ("
+        + "`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,`employeeID` INTEGER NOT NULL,"
+        + "`dayOfWeek` TEXT NOT NULL, `clockIn` INTEGER NOT NULL,`ClockOut` INTEGER NOT NULL);";
+
+    static String employeesTable = "CREATE TABLE `employees` ("
+        + "`employeeID`	INTEGER NOT NULL UNIQUE,`firstName`	TEXT NOT NULL,"
+        + "`LastName` TEXT NOT NULL, `MiddleName` TEXT, `hourlyRate` NUMERIC NOT NULL,"
+        + "`employeeType` TEXT NOT NULL, `currentClockInId` INTEGER, PRIMARY KEY(employeeID) );";
+
+    static String settingsTable ="CREATE TABLE `settings` ("
+        +" `name` TEXT NOT NULL UNIQUE, `value` TEXT, PRIMARY KEY(name) );";
+
+    static String timeStampsTable ="CREATE TABLE `timeStamps` ("
+	    +" `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+        +" `employeeID` INTEGER NOT NULL, `clockIn` TEXT NOT NULL, `clockOut` TEXT);";
+
+
 
     /// <summary>
     ///     Default Constructor for SQLiteDatabase Class.
     /// </summary>
     public SQLiteDatabase()
     {
-        dbConnection = "Data Source=barcode.sqlite";
+        dbConnection = "Data Source="+fileName;
+        this.SetDB();
     }
 
     /// <summary>
@@ -23,6 +44,7 @@ class SQLiteDatabase
     public SQLiteDatabase(String inputFile)
     {
         dbConnection = String.Format("Data Source={0}", inputFile);
+        this.SetDB();
     }
 
     /// <summary>
@@ -226,7 +248,26 @@ class SQLiteDatabase
 
     public void SetDB()
     {
+        if(!File.Exists(fileName))
+        {
+            try
+            {
+                SQLiteConnection.CreateFile(fileName);
 
+                this.ExecuteNonQuery(avgHoursTable);
+                this.ExecuteNonQuery(employeesTable);
+                this.ExecuteNonQuery(settingsTable);
+                this.ExecuteNonQuery(timeStampsTable);
+
+
+            }
+            catch(Exception err)
+            {
+                MessageBox.Show("There was an error while trying to create the database file.\n\n" + err.Message, "Database Creation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            }
+
+        }
 
 
     }
