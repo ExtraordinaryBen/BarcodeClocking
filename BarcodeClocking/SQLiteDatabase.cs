@@ -12,7 +12,7 @@ class SQLiteDatabase
 
     static String avgHoursTable = "CREATE TABLE `avgHours` ("
         + "`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,`employeeID` INTEGER NOT NULL,"
-        + "`dayOfWeek` TEXT NOT NULL, `clockIn` INTEGER NOT NULL,`ClockOut` INTEGER NOT NULL);";
+        + "`dayOfWeek` TEXT NOT NULL, `clockIn` TEXT NOT NULL,`clockOut` TEXT NOT NULL);";
 
     static String employeesTable = "CREATE TABLE `employees` ("
         + "`employeeID`	INTEGER NOT NULL UNIQUE,`firstName`	TEXT NOT NULL,"

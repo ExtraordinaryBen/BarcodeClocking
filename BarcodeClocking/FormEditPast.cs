@@ -51,64 +51,98 @@ namespace BarcodeClocking
 
         private void ButtonLoad_Click(object sender, EventArgs e)
         {
-            // vars
-            bool found = false;
-
-
-            // change gui
-            ButtonLoad.Text = "Loading Times...";
-            ButtonLoad.Enabled = false;
-            TextBoxCardID.Enabled = false;
-            ComboBoxMonth.Enabled = false;
-            NumericUpDownYear.Enabled = false;
-            DataGridViewTimes.Rows.Clear();
-
-            // get month beginning and end
-            DateTime monthStart = new DateTime((int)NumericUpDownYear.Value, ComboBoxMonth.SelectedIndex + 1, 1);
-            DateTime monthEnd = monthStart.AddMonths(1);
-
-
-            dt = sql.GetDataTable("select strftime('%m/%d/%Y %H:%M:%S', clockIn) as clockIn, strftime('%m/%d/%Y %H:%M:%S', clockOut) as clockOut, id "
-                + "from timeStamps where employeeID=" + TextBoxCardID.Text.Trim()
-                + " and cast(strftime('%m', clockIn) as integer) = " + (int)(ComboBoxMonth.SelectedIndex + 1)
-                + " and cast(strftime('%Y', clockIn) as integer) = " + (int)NumericUpDownYear.Value + ";");
-
-            // check if this is the card we're looking for
-            if (dt.Rows.Count > 0)
+            if (TextBoxCardID.Text != "")
             {
-                // mark as found
-                found = true;
+                // vars
+                bool found = false;
 
-                try
+
+                // change gui
+                ButtonLoad.Text = "Loading Times...";
+                ButtonLoad.Enabled = false;
+                TextBoxCardID.Enabled = false;
+                ComboBoxMonth.Enabled = false;
+                NumericUpDownYear.Enabled = false;
+                DataGridViewTimes.Rows.Clear();
+
+                // get month beginning and end
+                DateTime monthStart = new DateTime((int)NumericUpDownYear.Value, ComboBoxMonth.SelectedIndex + 1, 1);
+                DateTime monthEnd = monthStart.AddMonths(1);
+
+
+                dt = sql.GetDataTable("select strftime('%m/%d/%Y %H:%M:%S', clockIn) as clockIn, strftime('%m/%d/%Y %H:%M:%S', clockOut) as clockOut, id "
+                    + " from timeStamps where employeeID=" + TextBoxCardID.Text.Trim()
+                    + " and clockOut<>'' "
+                    + " and cast(strftime('%m', clockIn) as integer) = " + (int)(ComboBoxMonth.SelectedIndex + 1)
+                    + " and cast(strftime('%Y', clockIn) as integer) = " + (int)NumericUpDownYear.Value + ";");
+
+                // check if this is the card we're looking for
+                if (dt.Rows.Count > 0)
                 {
+                    // mark as found
+                    found = true;
 
-                    DataGridViewTimes.DataSource = dt;
-
-                    foreach (DataGridViewRow entry in this.DataGridViewTimes.Rows)
+                    try
                     {
-                        entry.Cells[0].Value = DateTime.Parse(entry.Cells[0].Value.ToString()).ToString(StringFormats.timeStampFormat);
-                        entry.Cells[1].Value = DateTime.Parse(entry.Cells[1].Value.ToString()).ToString(StringFormats.timeStampFormat);
+
+                        DataGridViewTimes.DataSource = dt;
+
+                        foreach (DataGridViewRow entry in this.DataGridViewTimes.Rows)
+                        {
+                            entry.Cells[0].Value = DateTime.Parse(entry.Cells[0].Value.ToString()).ToString(StringFormats.timeStampFormat);
+                            entry.Cells[1].Value = DateTime.Parse(entry.Cells[1].Value.ToString()).ToString(StringFormats.timeStampFormat);
+
+                        }
+
+                        this.DataGridViewTimes.ClearSelection();
+
+                        //Hide id column, used to determine which entry to update/remove 
+                        this.DataGridViewTimes.Columns[2].Visible = false;
+
+                        this.DataGridViewTimes.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
+
+                        //Enable fields to edit entries
+                        clockInTimePicker.Enabled = true;
+                        clockOutTimePicker.Enabled = true;
+                        datePicker.Enabled = true;
 
                     }
+                    catch (Exception err)
+                    {
+                        MessageBox.Show(this, "There was an error while trying to load your clocked times.\n\n" + err.Message, "Times Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    this.DataGridViewTimes.ClearSelection();
-                    
-                    //Hide id column, used to determine which entry to update/remove 
-                    this.DataGridViewTimes.Columns[2].Visible = false;
-
-                    this.DataGridViewTimes.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
-                    
-                    //Enable fields to edit entries
-                    clockInTimePicker.Enabled = true;
-                    clockOutTimePicker.Enabled = true;
-                    datePicker.Enabled = true;
+                        // enable controls
+                        TextBoxCardID.Enabled = true;
+                        ComboBoxMonth.Enabled = true;
+                        NumericUpDownYear.Enabled = true;
+                        DataGridViewTimes.DataSource = null;
+                        ButtonLoad.Enabled = true;
+                        ButtonSave.Enabled = false;
+                    }
 
                 }
-                catch (Exception err)
-                {
-                    MessageBox.Show(this, "There was an error while trying to load your clocked times.\n\n" + err.Message, "Times Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    // enable controls
+
+                // notify user if card wasn't found
+                if (!found)
+                {
+                    MessageBox.Show(this, "The card you entered wasn't found. Are you sure you typed it in correctly?", "Card Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    // reset gui
+                    TextBoxCardID.Enabled = true;
+                    ComboBoxMonth.Enabled = true;
+                    NumericUpDownYear.Enabled = true;
+                    DataGridViewTimes.DataSource = null;
+                    ButtonLoad.Enabled = true;
+                    ButtonSave.Enabled = false;
+                }
+                // check for no times showing
+                else if (DataGridViewTimes.Rows.Count == 0)
+                {
+                    // notify user
+                    MessageBox.Show(this, "It looks like there isn't any time you logged in the selected month. Are you sure the year and month selections are correct?", "No Times", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+                    // reset gui
                     TextBoxCardID.Enabled = true;
                     ComboBoxMonth.Enabled = true;
                     NumericUpDownYear.Enabled = true;
@@ -117,39 +151,9 @@ namespace BarcodeClocking
                     ButtonSave.Enabled = false;
                 }
 
+                // change 'status'
+                ButtonLoad.Text = "Load Times";
             }
-
-
-            // notify user if card wasn't found
-            if (!found)
-            {
-                MessageBox.Show(this, "The card you entered wasn't found. Are you sure you typed it in correctly?", "Card Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                // reset gui
-                TextBoxCardID.Enabled = true;
-                ComboBoxMonth.Enabled = true;
-                NumericUpDownYear.Enabled = true;
-                DataGridViewTimes.DataSource = null;
-                ButtonLoad.Enabled = true;
-                ButtonSave.Enabled = false;
-            }
-            // check for no times showing
-            else if (DataGridViewTimes.Rows.Count == 0)
-            {
-                // notify user
-                MessageBox.Show(this, "It looks like there isn't any time you logged in the selected month. Are you sure the year and month selections are correct?", "No Times", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                // reset gui
-                TextBoxCardID.Enabled = true;
-                ComboBoxMonth.Enabled = true;
-                NumericUpDownYear.Enabled = true;
-                DataGridViewTimes.DataSource = null;
-                ButtonLoad.Enabled = true;
-                ButtonSave.Enabled = false;
-            }
-
-            // change 'status'
-            ButtonLoad.Text = "Load Times";
         }
 
         private void DataGridViewTimes_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)

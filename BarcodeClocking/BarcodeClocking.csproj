@@ -85,6 +85,12 @@
   </ItemGroup>
   <ItemGroup>
     <!-- -->
+    <Compile Include="EditAvgHours.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditAvgHours.Designer.cs">
+      <DependentUpon>EditAvgHours.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helper.cs" />
     <Compile Include="HelperClass.cs" />
     <Compile Include="FormAboutBox.cs">
@@ -145,6 +151,9 @@
     </Compile>
     <Compile Include="SQLiteDatabase.cs" />
     <Compile Include="STA_INIFile.cs" />
+    <EmbeddedResource Include="EditAvgHours.resx">
+      <DependentUpon>EditAvgHours.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormAboutBox.resx">
       <DependentUpon>FormAboutBox.cs</DependentUpon>
     </EmbeddedResource>

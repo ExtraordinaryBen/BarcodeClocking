@@ -106,6 +106,7 @@ namespace BarcodeClocking
                 data.Add("MiddleName", TextBoxMI.Text);
                 data.Add("hourlyRate", NumericUpDownHrRate.Value.ToString());
                 data.Add("employeeType", posType);
+                data.Add("currentClockInId", "0");
 
                 sql.Insert("employees", data);
             }

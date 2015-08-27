@@ -62,6 +62,7 @@ namespace BarcodeClocking
             this.ToolStripMenuItemEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemRemoveCard = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemManageTime = new System.Windows.Forms.ToolStripMenuItem();
+            this.editAvgHoursToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemEditPast = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemAddTime = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemReports = new System.Windows.Forms.ToolStripMenuItem();
@@ -185,12 +186,21 @@ namespace BarcodeClocking
             // ToolStripMenuItemManageTime
             // 
             this.ToolStripMenuItemManageTime.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.editAvgHoursToolStripMenuItem,
             this.ToolStripMenuItemEditPast,
             this.ToolStripMenuItemAddTime});
             this.ToolStripMenuItemManageTime.Name = "ToolStripMenuItemManageTime";
             this.ToolStripMenuItemManageTime.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.T)));
             this.ToolStripMenuItemManageTime.Size = new System.Drawing.Size(92, 20);
             this.ToolStripMenuItemManageTime.Text = "Manage &Time";
+            // 
+            // editAvgHoursToolStripMenuItem
+            // 
+            this.editAvgHoursToolStripMenuItem.Name = "editAvgHoursToolStripMenuItem";
+            this.editAvgHoursToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.H)));
+            this.editAvgHoursToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.editAvgHoursToolStripMenuItem.Text = "Edit avg. Hours";
+            this.editAvgHoursToolStripMenuItem.Click += new System.EventHandler(this.editAvgHoursToolStripMenuItem_Click);
             // 
             // ToolStripMenuItemEditPast
             // 
@@ -330,5 +340,6 @@ namespace BarcodeClocking
         private System.Windows.Forms.Label Clock;
         private System.Windows.Forms.Timer clockTimer;
         private System.Windows.Forms.Label dateBox;
+        private System.Windows.Forms.ToolStripMenuItem editAvgHoursToolStripMenuItem;
     }
 }

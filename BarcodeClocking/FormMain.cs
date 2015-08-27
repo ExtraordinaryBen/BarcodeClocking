@@ -140,7 +140,7 @@ namespace BarcodeClocking
                     if (inputChar.Equals('\b'))
                     {
                         // make sure there's at least one char to remove
-                        if (input.Length > 0)
+                        if ( (input != null) && input.Length > 0)
                         {
                             LabelInput.Text = LabelInput.Text.Substring(0, LabelInput.Text.Length - 1);
                             input = input.Substring(0, input.Length - 1);
@@ -500,6 +500,7 @@ namespace BarcodeClocking
 
         #endregion
 
+        //http://stackoverflow.com/questions/11952075/timer-refresh-functionality-for-text-box
 
         private void clockTimer_Tick(object sender, EventArgs e)
         {
@@ -507,7 +508,19 @@ namespace BarcodeClocking
             dateBox.Text = DateTime.Now.ToString("D");
         }
 
-        //http://stackoverflow.com/questions/11952075/timer-refresh-functionality-for-text-box
+        private void editAvgHoursToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // update status
+            LabelStatus.Text = "Waiting for Avg. Hours window to close . . .";
+
+            // show about box
+            EditAvgHours EditAvgHoursBox = new EditAvgHours();
+            EditAvgHoursBox.ShowDialog();
+
+            // reset status
+            ResetStatus();
+        }
+
     }
 
 }
