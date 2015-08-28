@@ -146,6 +146,8 @@
             this.TextBoxCardID.Name = "TextBoxCardID";
             this.TextBoxCardID.Size = new System.Drawing.Size(179, 20);
             this.TextBoxCardID.TabIndex = 0;
+            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(Helper.OnKeyPress);
+
             // 
             // LoadButton
             // 

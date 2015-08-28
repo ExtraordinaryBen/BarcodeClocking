@@ -136,7 +136,7 @@ namespace BarcodeClocking
             this.TextBoxCardID.Size = new System.Drawing.Size(270, 20);
             this.TextBoxCardID.TabIndex = 1;
             this.TextBoxCardID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxID_KeyDown);
-            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(HelperClass.OnKeyPress);
+            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(Helper.OnKeyPress);
             // 
             // LabelID
             // 
