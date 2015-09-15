@@ -70,7 +70,8 @@ namespace BarcodeClocking
                 DateTime monthEnd = monthStart.AddMonths(1);
 
 
-                dt = sql.GetDataTable("select strftime('%m/%d/%Y %H:%M:%S', clockIn) as clockIn, strftime('%m/%d/%Y %H:%M:%S', clockOut) as clockOut, id "
+                dt = sql.GetDataTable("select strftime('%m/%d/%Y %H:%M:%S', clockIn) as clockIn,"
+                    + " strftime('%m/%d/%Y %H:%M:%S', clockOut) as clockOut, id "
                     + " from timeStamps where employeeID=" + TextBoxCardID.Text.Trim()
                     + " and clockOut<>'' "
                     + " and cast(strftime('%m', clockIn) as integer) = " + (int)(ComboBoxMonth.SelectedIndex + 1)
@@ -111,13 +112,15 @@ namespace BarcodeClocking
                     {
                         MessageBox.Show(this, "There was an error while trying to load your clocked times.\n\n" + err.Message, "Times Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
+                        DataGridViewTimes.DataSource = null;
+
                         // enable controls
                         TextBoxCardID.Enabled = true;
                         ComboBoxMonth.Enabled = true;
                         NumericUpDownYear.Enabled = true;
-                        DataGridViewTimes.DataSource = null;
                         ButtonLoad.Enabled = true;
                         ButtonSave.Enabled = false;
+                        DeleteButton.Enabled = false;
                     }
 
                 }
@@ -129,12 +132,7 @@ namespace BarcodeClocking
                     MessageBox.Show(this, "The card you entered wasn't found. Are you sure you typed it in correctly?", "Card Not Found!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     // reset gui
-                    TextBoxCardID.Enabled = true;
-                    ComboBoxMonth.Enabled = true;
-                    NumericUpDownYear.Enabled = true;
-                    DataGridViewTimes.DataSource = null;
-                    ButtonLoad.Enabled = true;
-                    ButtonSave.Enabled = false;
+                    this.ResetUI();
                 }
                 // check for no times showing
                 else if (DataGridViewTimes.Rows.Count == 0)
@@ -143,12 +141,7 @@ namespace BarcodeClocking
                     MessageBox.Show(this, "It looks like there isn't any time you logged in the selected month. Are you sure the year and month selections are correct?", "No Times", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
                     // reset gui
-                    TextBoxCardID.Enabled = true;
-                    ComboBoxMonth.Enabled = true;
-                    NumericUpDownYear.Enabled = true;
-                    DataGridViewTimes.DataSource = null;
-                    ButtonLoad.Enabled = true;
-                    ButtonSave.Enabled = false;
+                    this.ResetUI();
                 }
 
                 // change 'status'
@@ -163,13 +156,8 @@ namespace BarcodeClocking
             clockOutTimePicker.Value = DateTime.Parse(e.Row.Cells[1].Value.ToString());
 
             // enable saving
-            ButtonSave.Enabled = true;
-        }
+            this.EnableUI();
 
-        private void DataGridViewTimes_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
-        {
-            // remove respective row from list of clocked times
-            //timeList.RemoveAt(positionMapper[e.RowIndex]);
         }
 
         private void ButtonReset_Click(object sender, EventArgs e)
@@ -197,37 +185,37 @@ namespace BarcodeClocking
             this.DataGridViewTimes.ClearSelection();
             this.DataGridViewTimes.RowStateChanged -= new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
             DataGridViewTimes.DataSource = null;
-            clockInTimePicker.Enabled = false;
-            clockOutTimePicker.Enabled = false;
-            datePicker.Enabled = false;
+            this.DisableUI();
             ButtonLoad.Enabled = true;
-            ButtonSave.Enabled = false;
+
         }
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
-            // vars
-            int timeStampId = int.Parse(DataGridViewTimes.SelectedRows[0].Cells[2].Value.ToString());
-
-            try
+            if (DataGridViewTimes.SelectedRows.Count > 0)
             {
-                Dictionary<String, String> data = new Dictionary<String, String>();
-                data.Add("clockIn", clockInTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
-                data.Add("clockOut", clockOutTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
+                // vars
+                string timeStampId = DataGridViewTimes.SelectedRows[0].Cells[2].Value.ToString();
 
-                sql.Update("timeStamps", data, String.Format("timeStamps.id = {0}", timeStampId));
+                try
+                {
+                    Dictionary<String, String> data = new Dictionary<String, String>();
+                    data.Add("clockIn", clockInTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
+                    data.Add("clockOut", clockOutTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
 
-                DataGridViewTimes.SelectedRows[0].Cells[0].Value = clockInTimePicker.Value.ToString(StringFormats.timeStampFormat);
-                DataGridViewTimes.SelectedRows[0].Cells[1].Value = clockOutTimePicker.Value.ToString(StringFormats.timeStampFormat);
-                
-                this.DataGridViewTimes.ClearSelection();
+                    if (sql.Update("timeStamps", data, String.Format("timeStamps.id = {0}", timeStampId)))
+                    {
+                        DataGridViewTimes.SelectedRows[0].Cells[0].Value = clockInTimePicker.Value.ToString(StringFormats.timeStampFormat);
+                        DataGridViewTimes.SelectedRows[0].Cells[1].Value = clockOutTimePicker.Value.ToString(StringFormats.timeStampFormat);
 
-                // disable duplicate saving
-                ButtonSave.Enabled = false;
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show(this, "There was an error while trying to save your changes.\n\n" + err.Message, "Time Save Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    // disable duplicate saving
+                    this.DisableUI();
+                }
+                catch (Exception err)
+                {
+                    MessageBox.Show(this, "There was an error while trying to save your changes.\n\n" + err.Message, "Time Save Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -245,6 +233,60 @@ namespace BarcodeClocking
                         break;
                 }
             }
+        }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string toDeleteId = this.DataGridViewTimes.SelectedRows[0].Cells[2].Value.ToString();
+                int rowId = this.DataGridViewTimes.SelectedRows[0].Index;
+
+                if (sql.Delete("timeStamps", "id=" + toDeleteId))
+                {
+                    this.DataGridViewTimes.RowStateChanged -= new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
+                    this.DataGridViewTimes.Rows.RemoveAt(rowId);
+                    this.DataGridViewTimes.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
+
+                    this.DisableUI();
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(this, "There was an error while trying to delete the entry.\n\n" + err.Message, "Delete Entry Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DisableUI()
+        {
+            this.DataGridViewTimes.ClearSelection();
+            clockInTimePicker.Enabled = false;
+            clockOutTimePicker.Enabled = false;
+            datePicker.Enabled = false;
+            ButtonSave.Enabled = false;
+            DeleteButton.Enabled = false;
+            
+        }
+
+        private void EnableUI()
+        {
+            clockInTimePicker.Enabled = true;
+            clockOutTimePicker.Enabled = true;
+            datePicker.Enabled = true;
+            ButtonSave.Enabled = true;
+            DeleteButton.Enabled = true;
+
+        }
+
+        private void ResetUI()
+        {
+            TextBoxCardID.Enabled = true;
+            ComboBoxMonth.Enabled = true;
+            NumericUpDownYear.Enabled = true;
+            DataGridViewTimes.DataSource = null;
+            ButtonLoad.Enabled = true;
+            ButtonSave.Enabled = false;
+
         }
     }
 

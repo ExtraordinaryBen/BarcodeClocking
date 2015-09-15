@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="LabelHint.Text" xml:space="preserve">
-    <value>Scan your card or enter your Student ID to pull up logged times within the respective month. Double/Tripple click on any date/time to edit that entry. To delete a Clock-in/-out pair, click on either value and press Delete.</value>
-  </data>
   <metadata name="DataGridViewTimes.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>

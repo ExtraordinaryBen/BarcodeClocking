@@ -68,6 +68,7 @@ namespace BarcodeClocking
             this.dateLabel = new System.Windows.Forms.Label();
             this.clockInLabel = new System.Windows.Forms.Label();
             this.clockOutLabel = new System.Windows.Forms.Label();
+            this.DeleteButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewTimes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumericUpDownYear)).BeginInit();
             this.SuspendLayout();
@@ -79,7 +80,8 @@ namespace BarcodeClocking
             this.LabelHint.Name = "LabelHint";
             this.LabelHint.Size = new System.Drawing.Size(406, 54);
             this.LabelHint.TabIndex = 0;
-            this.LabelHint.Text = resources.GetString("LabelHint.Text");
+            this.LabelHint.Text = "Scan your card or enter your Student ID to pull up logged times within the respec" +
+    "tive month. ";
             // 
             // LabelMonth
             // 
@@ -136,7 +138,6 @@ namespace BarcodeClocking
             this.DataGridViewTimes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.DataGridViewTimes.Size = new System.Drawing.Size(406, 155);
             this.DataGridViewTimes.TabIndex = 5;
-            this.DataGridViewTimes.RowsRemoved += new System.Windows.Forms.DataGridViewRowsRemovedEventHandler(this.DataGridViewTimes_RowsRemoved);
             // 
             // ColumnClockIn
             // 
@@ -164,8 +165,6 @@ namespace BarcodeClocking
             this.TextBoxCardID.Name = "TextBoxCardID";
             this.TextBoxCardID.Size = new System.Drawing.Size(200, 20);
             this.TextBoxCardID.TabIndex = 1;
-            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(Helper.OnKeyPress);
-
             // 
             // LabelCardID
             // 
@@ -213,10 +212,10 @@ namespace BarcodeClocking
             // ButtonSave
             // 
             this.ButtonSave.Enabled = false;
-            this.ButtonSave.Location = new System.Drawing.Point(358, 400);
+            this.ButtonSave.Location = new System.Drawing.Point(344, 400);
             this.ButtonSave.Margin = new System.Windows.Forms.Padding(2);
             this.ButtonSave.Name = "ButtonSave";
-            this.ButtonSave.Size = new System.Drawing.Size(56, 22);
+            this.ButtonSave.Size = new System.Drawing.Size(70, 23);
             this.ButtonSave.TabIndex = 6;
             this.ButtonSave.Text = "Save";
             this.ButtonSave.UseVisualStyleBackColor = true;
@@ -291,12 +290,24 @@ namespace BarcodeClocking
             this.clockOutLabel.TabIndex = 19;
             this.clockOutLabel.Text = "Clock Out:";
             // 
+            // DeleteButton
+            // 
+            this.DeleteButton.Enabled = false;
+            this.DeleteButton.Location = new System.Drawing.Point(271, 400);
+            this.DeleteButton.Name = "DeleteButton";
+            this.DeleteButton.Size = new System.Drawing.Size(68, 23);
+            this.DeleteButton.TabIndex = 20;
+            this.DeleteButton.Text = "Delete";
+            this.DeleteButton.UseVisualStyleBackColor = true;
+            this.DeleteButton.Click += new System.EventHandler(this.DeleteButton_Click);
+            // 
             // FormEditPast
             // 
             this.AcceptButton = this.ButtonLoad;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(425, 432);
+            this.Controls.Add(this.DeleteButton);
             this.Controls.Add(this.clockOutLabel);
             this.Controls.Add(this.clockInLabel);
             this.Controls.Add(this.dateLabel);
@@ -353,5 +364,6 @@ namespace BarcodeClocking
         private System.Windows.Forms.Label dateLabel;
         private System.Windows.Forms.Label clockInLabel;
         private System.Windows.Forms.Label clockOutLabel;
+        private System.Windows.Forms.Button DeleteButton;
     }
 }
