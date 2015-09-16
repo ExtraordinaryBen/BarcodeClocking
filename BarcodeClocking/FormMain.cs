@@ -18,7 +18,6 @@
 // If you have any questions or comments, please contact the current Club
 // President or Club Vice President.
 
-using STA.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -94,7 +93,15 @@ namespace BarcodeClocking
 
 
             if (sql.GetDataTable("select employeeID from employees;").Rows.Count == 0)
-                MessageBox.Show(this, "It looks like there aren't any registered cards yet. You can add a card by pressing Alt + N on the keyboard, or by clicking on the 'Add new card' option from the 'Manage Cards' menu.", "No Registered Cards", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            {
+                var result = MessageBox.Show(this, "It looks like there aren't any registered cards yet. You can add a card by pressing Alt + N on the keyboard, or by clicking on the 'Add new card' option from the 'Manage Cards' menu."
+                    + "\n\n Would you like to check to attemp importing an existing database?", "No Registered Cards", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk);
+
+                if (result == System.Windows.Forms.DialogResult.Yes)
+                {
+                    ImportCardList cardList = new ImportCardList("cardList");
+                }
+            }
             else
                 autoClockOut();
 

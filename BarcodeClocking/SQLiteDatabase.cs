@@ -8,7 +8,7 @@ using System.Windows.Forms;
 class SQLiteDatabase
 {
     String dbConnection;
-    static String fileName = "barcode.sqlite";
+    public static String fileName = "barcode.sqlite";
 
     static String avgHoursTable = "CREATE TABLE `avgHours` ("
         + "`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,`employeeID` INTEGER NOT NULL,"
