@@ -220,6 +220,20 @@ namespace BarcodeClocking
                     {
                         DataTable dt = AvgHoursGridView.DataSource as DataTable;
 
+                        if(dt == null)
+                        {
+                            dt = new DataTable();
+                            dt.Columns.Add("id", typeof(int));
+                            dt.Columns.Add("Day", typeof(string));
+                            dt.Columns.Add("clockIn", typeof(string));
+                            dt.Columns.Add("clockOut", typeof(string));
+
+                            AvgHoursGridView.DataSource = dt;
+
+                            //Hide id column, used to determine which entry to update/remove 
+                            this.AvgHoursGridView.Columns[0].Visible = false;
+                        }
+
                         DataRow dr = dt.NewRow();
                         dr[0] = sql.ExecuteScalar("select seq from sqlite_sequence where name='avgHours';");
                         dr[1] = dayOfWeek;
