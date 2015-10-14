@@ -126,6 +126,7 @@ namespace BarcodeClocking
             this.DataGridViewTimes.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.DataGridViewTimes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.DataGridViewTimes.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.DataGridViewTimes.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.DataGridViewTimes.Location = new System.Drawing.Point(9, 134);
             this.DataGridViewTimes.Margin = new System.Windows.Forms.Padding(2);
             this.DataGridViewTimes.MultiSelect = false;
@@ -138,6 +139,7 @@ namespace BarcodeClocking
             this.DataGridViewTimes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.DataGridViewTimes.Size = new System.Drawing.Size(406, 155);
             this.DataGridViewTimes.TabIndex = 5;
+            this.DataGridViewTimes.VirtualMode = true;
             // 
             // ColumnClockIn
             // 
@@ -165,8 +167,6 @@ namespace BarcodeClocking
             this.TextBoxCardID.Name = "TextBoxCardID";
             this.TextBoxCardID.Size = new System.Drawing.Size(200, 20);
             this.TextBoxCardID.TabIndex = 1;
-            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(Helper.OnKeyPress);
-
             // 
             // LabelCardID
             // 

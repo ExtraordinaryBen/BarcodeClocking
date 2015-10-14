@@ -97,9 +97,6 @@ namespace BarcodeClocking
 
                             this.DataGridViewTimes.RowStateChanged += new System.Windows.Forms.DataGridViewRowStateChangedEventHandler(this.DataGridViewTimes_RowStateChanged);
 
-                            //Enable fields to edit entries
-                            this.EnableTimePickers();
-                            datePicker.Enabled = true;
                         }
                         else
                         {
@@ -143,13 +140,17 @@ namespace BarcodeClocking
 
         private void DataGridViewTimes_RowStateChanged(object sender, DataGridViewRowStateChangedEventArgs e)
         {
-            datePicker.Value = DateTime.Parse(e.Row.Cells[0].Value.ToString());
-            clockInTimePicker.Value = DateTime.Parse(e.Row.Cells[0].Value.ToString());
-            clockOutTimePicker.Value = DateTime.Parse(e.Row.Cells[1].Value.ToString());
+            if (e.StateChanged == DataGridViewElementStates.Selected && e.Row.Selected)
+            {
+                this.DisableTimePickers();
+                datePicker.Value = DateTime.Parse(e.Row.Cells[0].Value.ToString());
+                clockInTimePicker.Value = DateTime.Parse(e.Row.Cells[0].Value.ToString());
+                clockOutTimePicker.Value = DateTime.Parse(e.Row.Cells[1].Value.ToString());
 
-            // enable saving
-            this.EnableUI();
-            this.EnableTimePickers();
+                // enable saving
+                this.EnableUI();
+                this.EnableTimePickers();
+            }
 
         }
 

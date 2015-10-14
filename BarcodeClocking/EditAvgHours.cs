@@ -144,11 +144,11 @@ namespace BarcodeClocking
         }
 
 
-        // Changes how cells are displayed depending on their columns and values.
+        
         private void AvgHoursGridView_CellFormatting(object sender,
             System.Windows.Forms.DataGridViewCellFormattingEventArgs e)
         {
-            // Set the background to red for negative values in the Balance column.
+            
             if (AvgHoursGridView.Columns[e.ColumnIndex].Name.Equals("clockIn")
                 || AvgHoursGridView.Columns[e.ColumnIndex].Name.Equals("clockOut") )
             {
