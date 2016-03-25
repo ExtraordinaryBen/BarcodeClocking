@@ -18,10 +18,6 @@
 // If you have any questions or comments, please contact the current Club
 // President or Club Vice President.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BarcodeClocking

@@ -90,6 +90,8 @@ namespace BarcodeClocking
 
                             }
 
+                            DataGridViewTimes.Sort(DataGridViewTimes.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+
                             this.DataGridViewTimes.ClearSelection();
 
                             //Hide id column, used to determine which entry to update/remove 
@@ -194,6 +196,10 @@ namespace BarcodeClocking
 
                 try
                 {
+                    //Make sure clockOut date is the same as clockIn date
+                    this.clockInTimePicker.Value = this.datePicker.Value.Date + this.clockInTimePicker.Value.TimeOfDay;
+                    this.clockOutTimePicker.Value = this.datePicker.Value.Date + this.clockOutTimePicker.Value.TimeOfDay;
+
                     Dictionary<String, String> data = new Dictionary<String, String>();
                     data.Add("clockIn", clockInTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
                     data.Add("clockOut", clockOutTimePicker.Value.ToString(StringFormats.sqlTimeFormat));
@@ -202,7 +208,7 @@ namespace BarcodeClocking
                     {
                         DataGridViewTimes.SelectedRows[0].Cells[0].Value = clockInTimePicker.Value.ToString(StringFormats.timeStampFormat);
                         DataGridViewTimes.SelectedRows[0].Cells[1].Value = clockOutTimePicker.Value.ToString(StringFormats.timeStampFormat);
-
+                        DataGridViewTimes.Sort(DataGridViewTimes.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
                     }
                     // disable duplicate saving
                     this.DisableUI();
@@ -258,8 +264,11 @@ namespace BarcodeClocking
         {
             try
             {
+                this.clockInTimePicker.Value = this.datePicker.Value.Date + this.clockInTimePicker.Value.TimeOfDay;
+
                 this.clockOutTimePicker.MinDate = this.clockInTimePicker.Value;
-                this.clockOutTimePicker.Value = this.clockInTimePicker.Value.Date + this.clockOutTimePicker.Value.TimeOfDay;
+                this.clockOutTimePicker.Value = this.datePicker.Value.Date + this.clockOutTimePicker.Value.TimeOfDay;
+                this.clockOutTimePicker.MaxDate = this.datePicker.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
             }
             catch (System.Exception ex)
             {

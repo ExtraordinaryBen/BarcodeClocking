@@ -21,9 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
-using System.Data;
 
 namespace BarcodeClocking
 {
@@ -82,9 +80,11 @@ namespace BarcodeClocking
 
         private void DateTimePickerIn_ValueChanged(Object sender, EventArgs e)
         {
-            DateTimePickerOut.MinDate = DateTimePickerIn.Value;
-            DateTimePickerOut.Value = DateTimePickerIn.Value;
+            this.DateTimePickerIn.Value = this.datePicker.Value.Date + this.DateTimePickerIn.Value.TimeOfDay;
+            if (this.DateTimePickerIn.Value.TimeOfDay.Hours > this.DateTimePickerOut.Value.TimeOfDay.Hours)
+                DateTimePickerOut.Value = DateTimePickerIn.Value;
             DateTimePickerOut.MaxDate = DateTimePickerIn.Value.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+            DateTimePickerOut.MinDate = DateTimePickerIn.Value;
         }
 
         private void ButtonAdd_Click(object sender, EventArgs e)
@@ -129,6 +129,9 @@ namespace BarcodeClocking
 
             try
             {
+                DateTimePickerIn.Value = this.datePicker.Value.Date + this.DateTimePickerIn.Value.TimeOfDay;
+                DateTimePickerOut.Value = this.datePicker.Value.Date + this.DateTimePickerOut.Value.TimeOfDay;
+
                 Dictionary<String, String> data = new Dictionary<String, String>();
                 data.Add("employeeID", TextBoxCardID.Text.Trim());
                 data.Add("clockIn", DateTimePickerIn.Value.ToString(StringFormats.sqlTimeFormat));

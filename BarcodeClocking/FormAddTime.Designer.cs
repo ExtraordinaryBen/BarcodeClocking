@@ -57,17 +57,20 @@ namespace BarcodeClocking
             this.ButtonAdd = new System.Windows.Forms.Button();
             this.TextBoxCardID = new System.Windows.Forms.TextBox();
             this.LabelID = new System.Windows.Forms.Label();
+            this.datePicker = new System.Windows.Forms.DateTimePicker();
+            this.DateLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // DateTimePickerIn
             // 
             this.DateTimePickerIn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.DateTimePickerIn.CustomFormat = "dddd, MMMM d, yyyy h:mm:ss tt";
+            this.DateTimePickerIn.CustomFormat = "h:mm:ss tt";
             this.DateTimePickerIn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.DateTimePickerIn.Location = new System.Drawing.Point(95, 67);
+            this.DateTimePickerIn.Location = new System.Drawing.Point(255, 95);
             this.DateTimePickerIn.Margin = new System.Windows.Forms.Padding(2);
             this.DateTimePickerIn.Name = "DateTimePickerIn";
-            this.DateTimePickerIn.Size = new System.Drawing.Size(269, 20);
+            this.DateTimePickerIn.ShowUpDown = true;
+            this.DateTimePickerIn.Size = new System.Drawing.Size(109, 20);
             this.DateTimePickerIn.TabIndex = 2;
             this.DateTimePickerIn.ValueChanged += new System.EventHandler(this.DateTimePickerIn_ValueChanged);
             // 
@@ -85,7 +88,7 @@ namespace BarcodeClocking
             // 
             this.LabelIn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LabelIn.AutoSize = true;
-            this.LabelIn.Location = new System.Drawing.Point(22, 67);
+            this.LabelIn.Location = new System.Drawing.Point(177, 98);
             this.LabelIn.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.LabelIn.Name = "LabelIn";
             this.LabelIn.Size = new System.Drawing.Size(75, 13);
@@ -96,7 +99,7 @@ namespace BarcodeClocking
             // 
             this.LabelOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LabelOut.AutoSize = true;
-            this.LabelOut.Location = new System.Drawing.Point(168, 91);
+            this.LabelOut.Location = new System.Drawing.Point(170, 122);
             this.LabelOut.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.LabelOut.Name = "LabelOut";
             this.LabelOut.Size = new System.Drawing.Size(83, 13);
@@ -108,7 +111,7 @@ namespace BarcodeClocking
             this.DateTimePickerOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.DateTimePickerOut.CustomFormat = "h:mm:ss tt";
             this.DateTimePickerOut.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.DateTimePickerOut.Location = new System.Drawing.Point(255, 91);
+            this.DateTimePickerOut.Location = new System.Drawing.Point(255, 119);
             this.DateTimePickerOut.Margin = new System.Windows.Forms.Padding(2);
             this.DateTimePickerOut.Name = "DateTimePickerOut";
             this.DateTimePickerOut.ShowUpDown = true;
@@ -127,16 +130,15 @@ namespace BarcodeClocking
             this.ButtonAdd.UseVisualStyleBackColor = true;
             this.ButtonAdd.Click += new System.EventHandler(this.ButtonAdd_Click);
             // 
-            // TextBoxID
+            // TextBoxCardID
             // 
             this.TextBoxCardID.AcceptsReturn = true;
             this.TextBoxCardID.Location = new System.Drawing.Point(95, 43);
             this.TextBoxCardID.Margin = new System.Windows.Forms.Padding(2);
-            this.TextBoxCardID.Name = "TextBoxID";
+            this.TextBoxCardID.Name = "TextBoxCardID";
             this.TextBoxCardID.Size = new System.Drawing.Size(270, 20);
             this.TextBoxCardID.TabIndex = 1;
             this.TextBoxCardID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBoxID_KeyDown);
-            this.TextBoxCardID.KeyPress += new System.Windows.Forms.KeyPressEventHandler(Helper.OnKeyPress);
             // 
             // LabelID
             // 
@@ -148,11 +150,29 @@ namespace BarcodeClocking
             this.LabelID.TabIndex = 8;
             this.LabelID.Text = "Card/Student ID:";
             // 
+            // datePicker
+            // 
+            this.datePicker.Location = new System.Drawing.Point(165, 68);
+            this.datePicker.Name = "datePicker";
+            this.datePicker.Size = new System.Drawing.Size(200, 20);
+            this.datePicker.TabIndex = 9;
+            // 
+            // DateLabel
+            // 
+            this.DateLabel.AutoSize = true;
+            this.DateLabel.Location = new System.Drawing.Point(132, 71);
+            this.DateLabel.Name = "DateLabel";
+            this.DateLabel.Size = new System.Drawing.Size(33, 13);
+            this.DateLabel.TabIndex = 10;
+            this.DateLabel.Text = "Date:";
+            // 
             // FormAddTime
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(369, 169);
+            this.Controls.Add(this.DateLabel);
+            this.Controls.Add(this.datePicker);
             this.Controls.Add(this.LabelID);
             this.Controls.Add(this.TextBoxCardID);
             this.Controls.Add(this.ButtonAdd);
@@ -184,5 +204,7 @@ namespace BarcodeClocking
         private System.Windows.Forms.Button ButtonAdd;
         private System.Windows.Forms.TextBox TextBoxCardID;
         private System.Windows.Forms.Label LabelID;
+        private System.Windows.Forms.Label DateLabel;
+        private System.Windows.Forms.DateTimePicker datePicker;
     }
 }
